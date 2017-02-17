@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
+    "target": "es6",
+    "sourceMap": true,
     "declaration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "./lib",
     "preserveConstEnums": true,
-    "removeComments": true
+    "removeComments": true,
+    "rootDir":"src"
   },
   "include": [
     "src/**/*"

@@ -1,2 +1,5 @@
 #!/usr/bin/env node
-require('../lib/cli.js');
+
+//use command "chmod +x [file]" to give executable permission.
+
+require("../lib/cli");

@@ -22,12 +22,14 @@
   "scripts": {
     "clean": "rimraf lib",
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
-    "build": "npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
+    "build": "npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty -w",
     "test": "npm run build && mocha --compilers ts:ts-node/register --recursive test/**/*-spec.ts",
     "watch": "npm run build -- --watch",
     "watch:test": "npm run test -- --watch"
   },
   "dependencies": {
+    "@types/commander": "^2.0.0",
+    "clime": "^0.4.3",
     "commander": "^2.9.0",
     "goita-ai-sample-js": "file:../goita-ai-sample-js",
     "goita-core-js": "file:../goita-core-js"
@@ -41,7 +43,8 @@
     "rimraf": "^2.0.0",
     "ts-node": "^1.0.0",
     "tslint": "^4.0.0",
-    "typescript": "^2.0.0"
+    "typescript": "^2.0.0",
+    "source-map-support": "^0.4.0"
   },
   "engines": {
     "node": ">=4.0.0"
