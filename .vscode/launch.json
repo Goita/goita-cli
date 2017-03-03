@@ -10,11 +10,12 @@
             "name": "goita game",
             "program": "${workspaceRoot}/lib/cli-game.js",
             "args": [
-                "game", 
+                "game",
                 "-i", "",
                 "-p", "1"
             ],
             "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
             "outFiles": [
                 "${workspaceRoot}/lib/**/*.js"
                 ]

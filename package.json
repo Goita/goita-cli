@@ -28,8 +28,9 @@
     "watch:test": "npm run test -- --watch"
   },
   "dependencies": {
+    "@types/cli-color": "^0.3.29",
     "@types/commander": "^2.0.0",
-    "clime": "^0.4.3",
+    "cli-color": "^1.1.0",
     "commander": "^2.9.0",
     "goita-ai-sample-js": "file:../goita-ai-sample-js",
     "goita-core-js": "file:../goita-core-js"
@@ -43,8 +44,7 @@
     "rimraf": "^2.0.0",
     "ts-node": "^1.0.0",
     "tslint": "^4.0.0",
-    "typescript": "^2.0.0",
-    "source-map-support": "^0.4.0"
+    "typescript": "^2.0.0"
   },
   "engines": {
     "node": ">=4.0.0"
