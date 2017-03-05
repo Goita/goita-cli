@@ -3,24 +3,57 @@ import * as goita from "goita-core";
 import * as readline from "readline";
 import * as clcex from "./cli-color.ex";
 const console = process.stdout;
-const clc2 = clc as clcex.ExFormat;
+const clc2 = clc as clcex.IExFormat;
 
 export class Cui {
-    public static showField(game: goita.Game, messages: string[]) {
-        const player = game.board.turnPlayer;
+
+    public static clearScreen(): void {
         console.write(clc.reset);
+    }
+    public static showMessages(messages: string[], msgCount: number): void {
+        const msgs = messages.slice(-msgCount);
+        for (const m of msgs) {
+            console.write(m + "\n");
+        }
+        if (msgs.length === 0) {
+            console.write("no messages\n");
+        }
+        console.write("------------------------\n");
+    }
+    public static showHand(game: goita.Game, turn: number, hidden: boolean) {
+        const player = game.board.players[turn];
+        const p = "p" + (player.no + 1);
+        console.write(p + " hand: ");
+        if (hidden) {
+            const len = player.hand.length;
+            let str = "";
+            for (const h of player.hand.sort()) {
+                if (h.value !== goita.Define.empty) {
+                    str += "☗";
+                }
+            }
+            console.write(clc.yellow(str));
+        } else {
+            console.write(clc.yellow(goita.KomaArray.toTextString(player.hand.sort())));
+        }
+        console.write("\n");
+        console.write("------------------------\n");
+    }
+
+    public static showField(game: goita.Game, turn: number) {
+        const player = game.board.players[turn];
         if (player.no % 2 === 0) {
             console.write("your team:" + clc.green(game.scores[0]) + " opponent:" + clc.green(game.scores[1]) + "\n");
         }else {
-            console.write("opponent:" + game.scores[0] + " your team:" + game.scores[1] + "\n");
+            console.write("opponent:" + clc.green(game.scores[0]) + " your team:" + clc.green(game.scores[1]) + "\n");
         }
         console.write("round: " + game.roundCount + "\n");
         console.write("------------------------\n");
 
         const history = new Array<string>();
-        history.push("p1| ", "p2| ", "p3| ", "p4| ");
+        history.push("p1 ", "p2 ", "p3 ", "p4 ");
         for (let i = 0; i < game.board.history.dealer; i++) {
-            history[i] += "    ";
+            history[i] += "|     ";
         }
         for (let i = 0; i < game.board.history.moveStack.length; i++) {
             const m = game.board.history.moveStack[i];
@@ -35,7 +68,7 @@ export class Cui {
                 hs = m.block.Text + m.attack.Text;
                 hs = clc.cyanBright(hs);
             }
-            history[p] += hs + "| ";
+            history[p] += "| " + hs;
         }
         for (const h of history) {
             console.write(h);
@@ -105,22 +138,16 @@ export class Cui {
         console.write("\n");
 
         console.write("------------------------\n");
-        console.write("hand: ");
-        console.write(clc.yellow(goita.KomaArray.toTextString(game.board.turnPlayer.hand.sort())));
-        console.write("\n");
-        console.write("------------------------\n");
     }
 
     public static selectMove(game: goita.Game, callback: (move: goita.Move) => void): void {
-
-        Cui.showField(game);
-
         const info = game.board.toThinkingInfo();
         const blocks = info.getBlockKomaList();
         const faceDown = !info.canPass;
 
         // ask block koma
-        Cui.askKoma(blocks, info.canPass, (block) => {
+        const komatype = faceDown ? "face down" : "block";
+        Cui.askKoma(blocks, info.canPass, komatype, (block) => {
             if (block === "p") {
                 const move = goita.Move.ofPass(game.board.turnPlayer.no);
                 callback(move);
@@ -129,7 +156,7 @@ export class Cui {
 
             const attacks = info.getAttackKomaList(goita.Koma.fromStr(block));
 
-            Cui.askKoma(attacks, false, (attack) => {
+            Cui.askKoma(attacks, false, "attack", (attack) => {
                 const b = goita.Koma.fromStr(block);
                 const a = goita.Koma.fromStr(attack);
                 if (faceDown) {
@@ -143,8 +170,7 @@ export class Cui {
         });
     }
 
-    public static askKoma(komas: goita.Koma[], pass: boolean, callback: (koma: string) => void): void {
-
+    public static askKoma(komas: goita.Koma[], pass: boolean, komaType: string, callback: (koma: string) => void): void {
         const list = new Array<string>();
         const validation = new Array<string>();
         for (const koma of komas) {
@@ -161,7 +187,7 @@ export class Cui {
                     process.stdin,
                     process.stdout,
                 );
-        rl.question("select koma>", (ans) => {
+        rl.question("select " + komaType + " koma>", (ans) => {
             rl.close();
             if (ans === "0" && pass) {
                 callback("p");
@@ -169,7 +195,7 @@ export class Cui {
                 callback(ans);
             }else {
                 // retry
-                Cui.askKoma(komas, pass, callback);
+                Cui.askKoma(komas, pass, komaType, callback);
             }
         });
     }

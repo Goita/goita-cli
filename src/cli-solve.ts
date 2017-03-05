@@ -1,12 +1,15 @@
 import * as program from "commander";
+import * as fs from "fs";
 import * as goita from "goita-core";
-program.version("0.0.1")
-.option("-l, --limit [limit]", "search limit(leaves)")
+const packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json").toString());
+
+const command = program.version(packageJson.version)
+.option("-l, --limit [limit]", "search limit(leaves)", 10000)
 .parse(process.argv);
 
 const solver = new goita.Solver();
 
-for (const a of program.args){
+for (const a of command.args){
     const evalMoves = solver.solve(a);
     if (evalMoves.length > 0) {
         process.stdout.write("Solve result for:\n");

@@ -1,5 +1,5 @@
 import * as clicolor from "cli-color";
-export interface Erase{
+export interface IErase{
     screen: string;
     screenLeft: string;
     screenRight: string;
@@ -8,7 +8,7 @@ export interface Erase{
     lineRight: string;
 }
 
-export interface ExFormat extends clicolor.Format {
+export interface IExFormat extends clicolor.Format {
     [key: string]: any;
-    erase: Erase;
+    erase: IErase;
 }

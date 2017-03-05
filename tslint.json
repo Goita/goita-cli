@@ -1,3 +1,8 @@
 {
-  "extends": "tslint:latest"
+  "extends": "tslint:latest",
+  "rules": {
+    "max-line-length": [false],
+    "interface-name": [false],
+    "ordered-imports": [false]
+  }
 }

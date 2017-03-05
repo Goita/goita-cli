@@ -7,5 +7,6 @@ export declare namespace commanderex{
         [key: string]: any;
         initialState?: string;
         playerNo?: number;
+        inisitalScore?: number[];
     }
 }

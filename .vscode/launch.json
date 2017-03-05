@@ -12,6 +12,7 @@
             "args": [
                 "game",
                 "-i", "",
+                "-s", "0,0",
                 "-p", "1"
             ],
             "cwd": "${workspaceRoot}",

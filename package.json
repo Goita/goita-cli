@@ -1,6 +1,7 @@
 {
   "name": "goita-cli",
   "version": "0.0.1",
+  "private": false,
   "description": "goita command line tool",
   "license": "MIT",
   "repository": {
