@@ -1,6 +1,6 @@
 import * as clc from "cli-color";
 import * as program from "commander";
-import {RandomAI} from "goita-ai-sample";
+import * as SampleAI from "goita-ai-sample";
 import * as goita from "goita-core";
 import * as readline from "readline";
 import { commanderex } from "./commander.ex";
@@ -16,7 +16,7 @@ const command = program.version(packageJson.version)
 .option("-p, --player-no [no]", "your player no.", (p) => Number(p) - 1 , 0)
 .parse(process.argv) as commanderex.IGameCommand;
 
-const ai = new RandomAI() as goita.AI;
+const ai = new SampleAI.SimpleAI();
 const wait: number = 1000;
 const msgs = new Array<string>();
 const msgLines: number = 5;
@@ -33,8 +33,8 @@ function gameLoop(exitloop: () => void) {
         }
     };
 
-    // game.startNewDeal();
-    game.startNewDealWithInitialState("11112678,11345679,11112345,23452345,s1");
+    game.startNewDeal();
+    // game.startNewDealWithInitialState("11112678,11345679,11112345,23452345,s1");
 
     if (game.board.isGoshiSuspended) {
         const goshiP = game.board.goshiPlayerNo;
