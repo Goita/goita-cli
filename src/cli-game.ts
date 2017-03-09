@@ -3,18 +3,18 @@ import * as program from "commander";
 import * as SampleAI from "goita-ai-sample";
 import * as goita from "goita-core";
 import * as readline from "readline";
-import { commanderex } from "./commander.ex";
-import {Cui} from "./cui";
+import * as commanderex from "./commander.ex";
+import { Cui } from "./cui";
 
 import * as fs from "fs";
 const packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json").toString());
 
 const command = program.version(packageJson.version)
-.option("-i, --initial-state [state]", "initial state historyString", null)
-.option("-s, --initial-score [score]", "initial scores for each team",
-        (v: string) => v.split(",").map((s: string) => Number(s)), [0, 0])
-.option("-p, --player-no [no]", "your player no.", (p) => Number(p) - 1 , 0)
-.parse(process.argv) as commanderex.IGameCommand;
+    .option("-i, --initial-state [state]", "initial state historyString", null)
+    .option("-s, --initial-score [score]", "initial scores for each team",
+    (v: string) => v.split(",").map((s: string) => Number(s)), [0, 0])
+    .option("-p, --player-no [no]", "your player no.", (p) => Number(p) - 1, 0)
+    .parse(process.argv) as commanderex.IGameCommand;
 
 const ai = new SampleAI.SimpleAI();
 const wait: number = 1000;
@@ -28,13 +28,16 @@ function gameLoop(exitloop: () => void) {
     const exitRound = () => {
         if (game.isEnd) {
             exitloop();
-        }else {
+        } else {
             gameLoop(exitloop);
         }
     };
 
-    game.startNewDeal();
-    // game.startNewDealWithInitialState("11112678,11345679,11112345,23452345,s1");
+    if (game.roundCount === 1 && command.initialState) {
+        game.startNewDealWithInitialState("11112678,11345679,11112345,23452345,s1");
+    } else {
+        game.startNewDeal();
+    }
 
     if (game.board.isGoshiSuspended) {
         const goshiP = game.board.goshiPlayerNo;
@@ -101,7 +104,7 @@ function roundLoop(exitloop: () => void) {
                 msgs.push("the history is ");
                 msgs.push(game.board.toHistoryString());
                 exitloop();
-            }else {
+            } else {
                 roundLoop(exitloop);
             }
         });
@@ -122,7 +125,7 @@ function roundLoop(exitloop: () => void) {
             msgs.push("the history is ");
             msgs.push(game.board.toHistoryString());
             exitloop();
-        }else {
+        } else {
             setTimeout(() => {
                 roundLoop(exitloop);
             }, wait);

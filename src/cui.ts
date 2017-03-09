@@ -44,7 +44,7 @@ export class Cui {
         const player = game.board.players[turn];
         if (player.no % 2 === 0) {
             console.write("your team:" + clc.green(game.scores[0]) + " opponent:" + clc.green(game.scores[1]) + "\n");
-        }else {
+        } else {
             console.write("opponent:" + clc.green(game.scores[0]) + " your team:" + clc.green(game.scores[1]) + "\n");
         }
         console.write("round: " + game.roundCount + "\n");
@@ -92,12 +92,12 @@ export class Cui {
         const pNo = goita.Util.shiftTurn(player.no, 2);
         console.write("    ");
         console.write(pLabel[pNo]);
-        for (const a of aLine[pNo].reverse()){
+        for (const a of aLine[pNo].reverse()) {
             console.write(clc.cyan(a === goita.Koma.empty ? empty : a.Text));
         }
         console.write("\n");
         console.write("       ");
-        for (const b of bLine[pNo].reverse()){
+        for (const b of bLine[pNo].reverse()) {
             console.write(clc.cyan(b === goita.Koma.empty ? empty : b.Text));
         }
         console.write("\n");
@@ -127,12 +127,12 @@ export class Cui {
 
         console.write("    ");
         console.write(pLabel[player.no]);
-        for (const b of bLine[player.no]){
+        for (const b of bLine[player.no]) {
             console.write(clc.cyan(b === goita.Koma.empty ? empty : b.Text));
         }
         console.write("\n");
         console.write("       ");
-        for (const a of aLine[player.no]){
+        for (const a of aLine[player.no]) {
             console.write(clc.cyan(a === goita.Koma.empty ? empty : a.Text));
         }
         console.write("\n");
@@ -162,7 +162,7 @@ export class Cui {
                 if (faceDown) {
                     const move = goita.Move.ofFaceDown(game.board.turnPlayer.no, b, a);
                     callback(move);
-                }else {
+                } else {
                     const move = goita.Move.ofMatch(game.board.turnPlayer.no, b, a);
                     callback(move);
                 }
@@ -184,16 +184,16 @@ export class Cui {
         console.write("\n");
 
         const rl = readline.createInterface(
-                    process.stdin,
-                    process.stdout,
-                );
+            process.stdin,
+            process.stdout,
+        );
         rl.question("select " + komaType + " koma>", (ans) => {
             rl.close();
             if (ans === "0" && pass) {
                 callback("p");
-            }else if (ans.length === 1 && validation.indexOf(ans) >= 0) {
+            } else if (ans.length === 1 && validation.indexOf(ans) >= 0) {
                 callback(ans);
-            }else {
+            } else {
                 // retry
                 Cui.askKoma(komas, pass, komaType, callback);
             }
@@ -202,15 +202,15 @@ export class Cui {
 
     public static askYesNo(callback: (answer: boolean) => void): void {
         const rl = readline.createInterface(
-                    process.stdin,
-                    process.stdout,
-                );
+            process.stdin,
+            process.stdout,
+        );
         rl.question("yes/no>", (ans) => {
             rl.close();
             const lans = ans.toLowerCase();
             if (lans.indexOf("y") >= 0) {
                 callback(true);
-            }else {
+            } else {
                 callback(false);
             }
         });

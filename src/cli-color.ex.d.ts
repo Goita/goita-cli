@@ -1,5 +1,5 @@
 import * as clicolor from "cli-color";
-export interface IErase{
+export interface IErase {
     screen: string;
     screenLeft: string;
     screenRight: string;
