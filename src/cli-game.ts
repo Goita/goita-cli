@@ -22,7 +22,15 @@ const msgs = new Array<string>();
 const msgLines: number = 5;
 const game = goita.Factory.createGame();
 game.startNewGame();
+game.setDealOptions(false, false);
 game.setInitialScore(command.initialScore);
+
+function refreshUI(): void {
+    Cui.clearScreen();
+    Cui.showField(game, command.playerNo);
+    Cui.showHand(game, command.playerNo, false);
+    Cui.showMessages(msgs, msgLines);
+}
 
 function gameLoop(exitloop: () => void) {
     const exitRound = () => {
@@ -38,17 +46,20 @@ function gameLoop(exitloop: () => void) {
     } else {
         game.startNewDeal();
     }
+    msgs.push("round: " + game.roundCount + " has started");
+    if (game.board.turnPlayer.no === command.playerNo) {
+        msgs.push("you are the dealer");
+    } else {
+        msgs.push("p" + game.board.turnPlayer.no + " is the dealer");
+    }
+    refreshUI();
 
     if (game.board.isGoshiSuspended) {
         const goshiP = game.board.goshiPlayerNo;
         for (const p of goshiP) {
-            Cui.clearScreen();
-            Cui.showField(game, command.playerNo);
-
             if (p === command.playerNo) {
-                Cui.showHand(game, p, false);
                 msgs.push("you have 5 shi");
-                Cui.showMessages(msgs, msgLines);
+                refreshUI();
                 process.stdout.write("do you wish to play?\n");
                 Cui.askYesNo((yes) => {
                     if (yes) {
@@ -64,8 +75,7 @@ function gameLoop(exitloop: () => void) {
             } else {
                 const pName = "p" + (p + 1);
                 msgs.push(pName + " have 5 shi");
-                Cui.showHand(game, p, true);
-                Cui.showMessages(msgs, msgLines);
+                refreshUI();
                 const ret = ai.continueGoshi(game.board.toThinkingInfo());
                 setTimeout(() => {
                     if (ret) {
@@ -86,11 +96,8 @@ function gameLoop(exitloop: () => void) {
 };
 
 function roundLoop(exitloop: () => void) {
-    Cui.clearScreen();
-    Cui.showField(game, command.playerNo);
+    refreshUI();
     if (game.board.turnPlayer.no === command.playerNo) {
-        Cui.showHand(game, game.board.turnPlayer.no, false);
-        Cui.showMessages(msgs, msgLines);
         Cui.selectMove(game, (m) => {
             game.board.playMove(m);
             if (m.pass) {
@@ -98,19 +105,20 @@ function roundLoop(exitloop: () => void) {
             } else {
                 msgs.push("you played " + m.toTextString());
             }
+            refreshUI();
 
             if (game.board.isEndOfDeal) {
+                // TODO: must turn this move into finish move
                 msgs.push("you have finished by score " + m.toScore());
                 msgs.push("the history is ");
                 msgs.push(game.board.toHistoryString());
+                refreshUI();
                 exitloop();
             } else {
                 roundLoop(exitloop);
             }
         });
     } else {
-        Cui.showHand(game, game.board.turnPlayer.no, true);
-        Cui.showMessages(msgs, msgLines);
         const p = "p" + (game.board.turnPlayer.no + 1);
         const m = ai.chooseMove(game.board.toThinkingInfo());
         game.board.playMove(m);
@@ -119,12 +127,15 @@ function roundLoop(exitloop: () => void) {
         } else {
             msgs.push(p + " played " + m.toTextString());
         }
-
+        refreshUI();
         if (game.board.isEndOfDeal) {
             msgs.push(p + " has finished by score " + m.toScore());
             msgs.push("the history is ");
             msgs.push(game.board.toHistoryString());
-            exitloop();
+            refreshUI();
+            setTimeout(() => {
+                exitloop();
+            }, wait * 3);
         } else {
             setTimeout(() => {
                 roundLoop(exitloop);
@@ -135,15 +146,18 @@ function roundLoop(exitloop: () => void) {
 
 function exitMessage(): void {
     let win: boolean;
+    let m = "";
     win = game.scores[command.playerNo % 2] >= game.winScore;
-    process.stdout.write("you have ");
+    m += "you have ";
     if (win) {
-        process.stdout.write("won");
+        m += "won";
     } else {
-        process.stdout.write("lost");
+        m += "lost";
     }
-    process.stdout.write(" the game. the scores ware " + game.scores[0] + ", " + game.scores[1]);
-    process.stdout.write("\n");
+    m += " the game. the scores ware " + game.scores[0] + ", " + game.scores[1];
+    m += "\n";
+    msgs.push(m);
+    refreshUI();
 };
 
 if (game.isEnd) {
