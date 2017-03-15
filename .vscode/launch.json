@@ -13,7 +13,8 @@
                 "game",
                 "-i", "",
                 "-s", "0,0",
-                "-p", "1"
+                "-p", "1",
+                "-G"
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -27,7 +28,7 @@
             "name": "goita solve [history]",
             "program": "${workspaceRoot}/bin/goita",
             "args": [
-                "solve", 
+                "solve",
                 "12667789,12345543,11112345,11112345,s1,116,2p,3p,4p,126,2p,3p,4p"
             ],
             "cwd": "${workspaceRoot}",

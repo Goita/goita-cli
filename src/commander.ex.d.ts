@@ -7,4 +7,6 @@ export interface IGameCommand extends commander.ICommand {
     initialState?: string;
     playerNo?: number;
     initialScore?: number[];
+    noGoshi?: boolean;
+    noYaku?: boolean;
 }
