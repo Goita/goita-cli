@@ -34,7 +34,7 @@
     "cli-color": "^1.1.0",
     "commander": "^2.9.0",
     "goita-ai-sample": "^0.1.1",
-    "goita-core": "^0.1.0"
+    "goita-core": "^0.1.1"
   },
   "devDependencies": {
     "@types/chai": "^3.0.0",

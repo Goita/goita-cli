@@ -159,13 +159,11 @@ export class Cui {
             Cui.askKoma(attacks, false, "attack", (attack) => {
                 const b = goita.Koma.fromStr(block);
                 const a = goita.Koma.fromStr(attack);
-                if (faceDown) {
-                    const move = goita.Move.ofFaceDown(game.board.turnPlayer.no, b, a);
-                    callback(move);
-                } else {
-                    const move = goita.Move.ofMatch(game.board.turnPlayer.no, b, a);
-                    callback(move);
-                }
+
+                // search the chosen move from possibleMoves
+                const moves = info.getPossibleMoves();
+                const move = moves.find((m) => m.block === b && m.attack === a);
+                callback(move);
             });
         });
     }
