@@ -15,8 +15,7 @@ for (const a of command.args) {
         process.stdout.write("Solve result for:\n");
         process.stdout.write(a + "\n");
         for (const m of evalMoves) {
-            // tslint:disable-next-line:max-line-length
-            const result = m.move.toOpenString() + "(" + m.move.block.Text + m.move.attack.Text + "), score:" + m.score + ", trailing moves: " + m.history.replace(a + ",", "");
+            const result = m.move.toOpenString() + "(" + m.move.toOpenTextString() + "), score:" + m.score + ", trailing moves: " + m.history.replace(a + ",", "");
             process.stdout.write(result + "\n");
         }
     } else {

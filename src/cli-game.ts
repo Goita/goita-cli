@@ -13,7 +13,7 @@ const command = program.version(packageJson.version)
     .option("-i, --initial-state [state]", "initial state historyString", null)
     .option("-s, --initial-score [score]", "initial scores for each team",
     (v: string) => v.split(",").map((s: string) => Number(s)), [0, 0])
-    .option("-p, --player-no [no]", "your player no.", (p) => Number(p) - 1, 0)
+    .option("-p, --player-no [no]", "your player No.", (p) => Number(p) - 1, 0)
     .option("-G, --noGoshi", "never deal goshi")
     // .option("-Y, --noYaku", "never deal 6-8 shi or 5-5 shi")
     .parse(process.argv) as commanderex.IGameCommand;
