@@ -15,18 +15,18 @@ const command = program.version(packageJson.version)
     (v: string) => v.split(",").map((s: string) => Number(s)), [0, 0])
     .option("-p, --player-no [no]", "your player No.", (p) => Number(p) - 1, 0)
     .option("-G, --noGoshi", "never deal goshi")
-    // .option("-Y, --noYaku", "never deal 6-8 shi or 5-5 shi")
+    .option("-Y, --noYaku", "never deal 6-8 shi or 5-5 shi")
     .parse(process.argv) as commanderex.IGameCommand;
 
 const ai = new SampleAI.SimpleAI();
 const wait: number = 1000;
 const msgs = new Array<string>();
-const msgLines: number = 5;
+const msgLines: number = 8;
 const game = goita.Factory.createGame();
 game.startNewGame();
 const options = new goita.DealOptions();
 options.noGoshi = command.noGoshi ? true : false;
-// options.noYaku = command.noYaku ? true : false;
+options.noYaku = command.noYaku ? true : false;
 game.setDealOptions(options);
 game.setInitialScore(command.initialScore);
 
@@ -39,19 +39,52 @@ function refreshUI(): void {
 
 function gameLoop(exitloop: () => void) {
     const exitRound = () => {
-        if (game.isEnd) {
-            exitloop();
-        } else {
-            gameLoop(exitloop);
-        }
+        setTimeout(() => {
+            if (game.isEnd) {
+                exitloop();
+            } else {
+                gameLoop(exitloop);
+            }
+        }, wait);
     };
 
-    if (game.roundCount === 1 && command.initialState) {
-        game.startNewDealWithInitialState("11112678,11345679,11112345,23452345,s1");
+    if (game.history.length === 0 && !game.board && command.initialState) {
+        game.startNewDealWithInitialState(command.initialState);
     } else {
         game.startNewDeal();
     }
     msgs.push("round: " + game.roundCount + " has started");
+
+    if (game.board.isEndOfDeal) {
+        const f = game.board.getFinishState();
+        const yaku = game.board.yakuInfo[0];
+        let yakuName = "";
+        switch (yaku.yaku) {
+            case goita.Yaku.rokushi:
+                yakuName = "6 shi";
+                break;
+            case goita.Yaku.nanashi:
+                yakuName = "7 shi";
+                break;
+            case goita.Yaku.hachishi:
+                yakuName = "8 shi";
+                break;
+            case goita.Yaku.goshigoshi_win:
+                yakuName = "5-5 shi";
+                break;
+            default:
+                break;
+        }
+        const player = f.nextDealerNo === command.playerNo ? "you" : "player" + f.nextDealerNo;
+        msgs.push(player + " finished with " + yakuName + " by score " + f.wonScore);
+        refreshUI();
+        setTimeout(() => {
+            exitRound();
+        }, wait * 2);
+
+        return;
+    }
+
     if (game.board.turnPlayer.no === command.playerNo) {
         msgs.push("you are the dealer");
     } else {
@@ -61,38 +94,50 @@ function gameLoop(exitloop: () => void) {
 
     if (game.board.isGoshiSuspended) {
         const goshiP = game.board.goshiPlayerNo;
-        for (const p of goshiP) {
-            if (p === command.playerNo) {
-                msgs.push("you have 5 shi");
-                refreshUI();
-                process.stdout.write("do you wish to play?\n");
-                Cui.askYesNo((yes) => {
-                    if (yes) {
-                        msgs.push("you decided to play");
-                        game.board.continueGoshi();
-                        roundLoop(exitRound);
-                    } else {
-                        msgs.push("you decided to redeal");
-                        game.board.redeal();
-                        exitRound();
-                    }
-                });
+        let redealCount = 0;
+        // ai choose first
+        for (const p of goshiP.filter((gp) => goita.Util.shiftTurn(gp, 2) !== command.playerNo)) {
+            const pName = "p" + (p + 1);
+            msgs.push(pName + " has 5 shi");
+            refreshUI();
+            const decidePlayerName = "p" + (goita.Util.shiftTurn(p, 2) + 1);
+            const ret = ai.continueGoshi(game.board.toThinkingInfo());
+            if (ret) {
+                msgs.push(decidePlayerName + " decided to play");
             } else {
-                const pName = "p" + (p + 1);
-                msgs.push(pName + " have 5 shi");
-                refreshUI();
-                const ret = ai.continueGoshi(game.board.toThinkingInfo());
-                setTimeout(() => {
-                    if (ret) {
-                        msgs.push(pName + " decided to play");
-                        game.board.continueGoshi();
-                        roundLoop(exitRound);
-                    } else {
-                        msgs.push(pName + " decided to redeal");
-                        game.board.redeal();
-                        exitRound();
-                    }
-                }, wait);
+                msgs.push(decidePlayerName + " decided to redeal");
+                redealCount++;
+            }
+            refreshUI();
+        }
+
+        if (goshiP.some((gp) => goita.Util.shiftTurn(gp, 2) === command.playerNo)) {
+            msgs.push("your partner has 5 shi");
+            refreshUI();
+            process.stdout.write("do you wish to play?\n");
+            Cui.askYesNo((yes) => {
+                if (yes) {
+                    msgs.push("you decided to play");
+                } else {
+                    msgs.push("you decided to redeal");
+                    redealCount++;
+                }
+
+                if (redealCount >= goshiP.length) {
+                    game.board.redeal();
+                    exitRound();
+                } else {
+                    game.board.continueGoshi();
+                    roundLoop(exitRound);
+                }
+            });
+        } else {
+            if (redealCount >= goshiP.length) {
+                game.board.redeal();
+                exitRound();
+            } else {
+                game.board.continueGoshi();
+                roundLoop(exitRound);
             }
         }
     } else {

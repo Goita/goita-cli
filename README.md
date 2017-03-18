@@ -25,6 +25,7 @@ param(short) | param(long) | value | example
  -s | --initial-score | scores `[(1&3_score),(2&4_score)]`| `140,0`
  -p | --player-no | No. `[1-4 number]` | `1`
 -G | --noGoshi | `[switch option]` | 
+-Y | --noYaku | `[switch option]` | 
 
 # Game rules
 Rules ([日本語](http://goita.jp/rule/)) | ([English](https://www.pagat.com/climbing/goita.html))
